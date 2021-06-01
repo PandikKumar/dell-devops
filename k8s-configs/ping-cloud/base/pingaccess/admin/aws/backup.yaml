@@ -1,0 +1,33 @@
+# A manual backup job - this does the same thing as the CronJob except it may be configured to be triggered in reaction
+# to a ClickOps event.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pingaccess-backup
+  labels:
+    cluster: pingaccess-cluster
+    role: pingaccess
+spec:
+  ttlSecondsAfterFinished: 0
+  backoffLimit: 5
+  template:
+    spec:
+      serviceAccount: ping-serviceaccount
+      restartPolicy: Never
+      containers:
+      - name: pingaccess-backup
+        image: pingcloud-virtual.jfrog.io/pingidentity/pingaccess:2010-6.1.3
+        command:
+        - /opt/in/backup-archive-data.sh
+        envFrom:
+        - configMapRef:
+            name: pingaccess-environment-variables
+        volumeMounts:
+        - name: pingaccess-backup
+          mountPath: /opt/in/backup-archive-data.sh
+          subPath: backup-archive-data.sh
+      volumes:
+      - name: pingaccess-backup
+        configMap:
+          name: pingaccess-backup
+          defaultMode: 0555

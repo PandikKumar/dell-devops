@@ -1,0 +1,159 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  labels:
+    app: kibana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana
+  template:
+    metadata:
+      labels:
+        app: kibana
+    spec:
+      initContainers:
+
+      - name: check-service-availability
+        image: public.ecr.aws/r2h3l6e4/pingcloud-monitoring/enrichment-bootstrap:7.8.0-v1.0.1
+        
+        imagePullPolicy: IfNotPresent
+        command: ["sh", '$(CONTAINER_NAME).sh']
+
+        env:
+          - name: CONTAINER_NAME
+            value: "check-service-availability"
+          - name: CHECK_SERVICE_URL
+            value: "http://elasticsearch"
+          - name: CHECK_SERVICE_PORT
+            value: "9200"
+          - name: DESIRED_STATUS
+            value: "green"
+
+      containers:
+      - name: kibana
+        image: docker.elastic.co/kibana/kibana:7.8.0
+
+        ports:
+        - containerPort: 5601
+          name: http
+
+        env:
+          - name: CONTAINER_NAME
+            value: "kibana"
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: SERVER_NAME
+            value: "ping-kibana"
+          - name: SERVER_HOST
+            value: "0.0.0.0"
+          - name: SERVER_PORT
+            value: "5601"
+          - name: ELASTICSEARCH_HOSTS
+            value: "http://elasticsearch:9200"
+          - name: XPACK_MONITORING_ENABLED
+            value: "false"
+          - name: LOGGING_QUIET
+            value: "true"
+
+        resources:
+          limits:
+            memory: 1Gi
+            cpu: 1000m
+          requests:
+            memory: 512Mi
+            cpu: 100m
+
+---
+# This service exposes the Kibana http port to the cluster.
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana
+  labels:
+    app: kibana
+spec:
+  ports:
+  - port: 5601
+    name: http
+  selector:
+    app: kibana
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kibana-dashboard-upload
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      initContainers:
+      - name: wait-for-kibana
+        image: public.ecr.aws/r2h3l6e4/pingcloud-monitoring/enrichment-bootstrap:7.8.0-v1.0.1
+        
+        imagePullPolicy: IfNotPresent
+        command: ["sh", "-c", "until $(curl --output /dev/null --silent --fail ${KIBANA_HOST}:5601/api/status); do echo 'waiting for kibana API' && sleep 1; done"]
+        env:
+        - name: KIBANA_HOST
+          value: "http://kibana"
+      containers:
+      - name: create-logstash-index
+        image: public.ecr.aws/r2h3l6e4/pingcloud-monitoring/enrichment-bootstrap:7.8.0-v1.0.1
+        imagePullPolicy: IfNotPresent
+        command: ["sh", "-c", "curl -sS -X POST 'http://kibana:5601/api/saved_objects/index-pattern/logstash-*'  -H 'kbn-xsrf: true' -H 'Content-Type: application/json' -d '{\"attributes\": { \"title\": \"logstash*\", \"timeFieldName\": \"@timestamp\" } }' "]
+
+      - name: kibana-dashboard-upload
+        image: public.ecr.aws/r2h3l6e4/pingcloud-monitoring/enrichment-bootstrap:7.8.0-v1.0.1
+        
+        imagePullPolicy: IfNotPresent
+        workingDir: /scripts
+        command: ["sh", '$(CONTAINER_NAME).sh']
+        env:
+        - name: CONTAINER_NAME
+          value: 'kibana-dashboard-upload'
+        - name: KIBANA_HOST
+          value: "http://kibana"
+
+        securityContext:
+          privileged: true
+          runAsUser: 1000
+          runAsGroup: 1000
+        volumeMounts: 
+        - name: kibana-dashboard-pa
+          mountPath: /scripts/dashboards/pa.ndjson
+          subPath: pa.ndjson
+        - name: kibana-dashboard-pd
+          mountPath: /scripts/dashboards/pd.ndjson
+          subPath: pd.ndjson
+        - name: kibana-dashboard-pf
+          mountPath: /scripts/dashboards/pf.ndjson
+          subPath: pf.ndjson
+        - name: kibana-dashboard-pf-basic
+          mountPath: /scripts/dashboards/pf-basic.ndjson
+          subPath: pf-basic.ndjson
+        - name: kibana-dashboard-pa-was-basic
+          mountPath: /scripts/dashboards/pa-was-basic.ndjson
+          subPath: pa-was-basic.ndjson
+
+      volumes:
+      - name: kibana-dashboard-pa
+        configMap:
+          name: kibana-dashboard-pa 
+      - name: kibana-dashboard-pd
+        configMap:
+          name: kibana-dashboard-pd 
+      - name: kibana-dashboard-pf
+        configMap:
+          name: kibana-dashboard-pf
+      - name: kibana-dashboard-pf-basic
+        configMap:
+          name: kibana-dashboard-pf-basic
+      - name: kibana-dashboard-pa-was-basic
+        configMap:
+          name: kibana-dashboard-pa-was-basic

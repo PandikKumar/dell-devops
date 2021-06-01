@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pingfederate-admin
+  labels:
+    cluster: pingfederate-cluster
+    role: pingfederate-admin
+spec:
+  serviceName: "pingfederate-admin"
+  replicas: 1
+  selector:
+    matchLabels:
+      role: pingfederate-admin
+  template:
+    metadata:
+      labels:
+        cluster: pingfederate-cluster
+        role: pingfederate-admin
+    spec:
+      containers:
+      - name: pingfederate
+        image: pingidentity/pingfederate:edge
+        securityContext:
+          runAsNonRoot: false
+          runAsUser: 0
+        #command: ["sh", "-c", "chmod -R 777 /opt/out"]
+        ports:
+        - containerPort: 9999
+          name: pf-admin
+        - containerPort: 7600
+        - containerPort: 7700
+        env:
+          - name: SERVER_PROFILE_URL
+            value: https://github.com/PandikKumar/citadel-devops-vikram.git
+          - name: SERVER_PROFILE_PATH
+            value: server-profiles/pingfederate-admin
+          - name: SERVER_PROFILE_BRANCH
+            value: main
+        volumeMounts:
+        - name: out-dir
+          mountPath: /opt/out
+          subPath: out
+        - name: license
+          mountPath: /opt/in/instance/server/default/conf/pingfederate.lic
+          subPath: pingfederate.lic
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: 1
+          limits:
+            memory: "2Gi"
+            cpu: 1
+      volumes:
+        - name: license
+          secret:
+            secretName: pingfederate
+        - name: out-dir
+          persistentVolumeClaim:
+            claimName: out-dir
+  volumeClaimTemplates:
+  - metadata:
+      name: out-dir
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      storageClassName: pingfederate-gp2
+      resources:
+        requests:
+          storage: 20Gi

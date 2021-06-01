@@ -1,0 +1,37 @@
+# A manual backup job - this does the same thing as the CronJob except it may be configured to be triggered in reaction
+# to a ClickOps event.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pingdirectory-backup
+  labels:
+    app: ping-cloud
+    role: pingdirectory
+spec:
+  ttlSecondsAfterFinished: 0
+  backoffLimit: 5
+  template:
+    spec:
+      serviceAccount: ping-serviceaccount
+      restartPolicy: Never
+      containers:
+      - name: pingdirectory-backup
+        # Required because new GSA images run as non-root by default, and P1AS does not work with non-root user yet.
+        securityContext:
+          runAsNonRoot: false
+          runAsUser: 0
+        image: pingcloud-virtual.jfrog.io/pingidentity/pingdirectory:2104-8.2.0.4
+        command:
+        - /opt/in/backup.sh
+        envFrom:
+        - configMapRef:
+            name: pingdirectory-environment-variables
+        volumeMounts:
+        - name: backup-script
+          mountPath: /opt/in/backup.sh
+          subPath: backup.sh
+      volumes:
+      - name: backup-script
+        configMap:
+          name: pingdirectory-backup
+          defaultMode: 0555

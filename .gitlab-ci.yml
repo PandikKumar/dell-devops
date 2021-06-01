@@ -1,0 +1,171 @@
+workflow:
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /\[skip pipeline\]/
+      when: never
+    - if: $CI_MERGE_REQUEST_ID
+      when: never
+    - when: always
+
+## Pipeline stages ##
+stages:
+- compile
+- build
+- unit-test
+- integration-test
+- chaos
+- cleanup
+
+## Global environment variables ##
+variables:
+  DELETE_ENV_AFTER_PIPELINE: 'true'
+
+## Compile stage ##
+compile:
+  stage: compile
+  tags:
+  - pd-eks-deploy
+  image: docker.corp.pingidentity.com:5000/platform-pipeline/k8s-deploy-tools:stable
+  script:
+  - ./ci-scripts/compile/compile.sh
+
+## Build stage ##
+deploy:
+  stage: build
+  tags:
+  - pd-eks-deploy
+  image: docker.corp.pingidentity.com:5000/platform-pipeline/k8s-deploy-tools:stable
+  script:
+  - ./ci-scripts/build/deploy.sh
+
+## Unit Test stage ##
+
+## Global environment variables ##
+framework-unit-tests:
+  stage: unit-test
+  tags:
+  - shell-runner
+  script:
+     - ./ci-scripts/run-framework-unit-tests "dummy Parameter From gitlab runner"
+
+common-unit-tests:
+  stage: unit-test
+  tags:
+    - pd-eks-deploy
+  image: docker.corp.pingidentity.com:5000/platform-pipeline/k8s-deploy-tools:stable
+  script:
+    - ./ci-scripts/test/unit/run-unit-tests.sh common
+
+pd-unit-tests:
+  stage: unit-test
+  tags:
+    - pd-eks-deploy
+  image: docker.corp.pingidentity.com:5000/platform-pipeline/k8s-deploy-tools:stable
+  script:
+    - ./ci-scripts/test/unit/run-unit-tests.sh pingdirectory
+
+pf-unit-tests:
+  stage: unit-test
+  tags:
+    - pd-eks-deploy
+  image: docker.corp.pingidentity.com:5000/platform-pipeline/k8s-deploy-tools:stable
+  script:
+    - ./ci-scripts/test/unit/run-unit-tests.sh pingfederate
+
+pa-unit-tests:
+  stage: unit-test
+  tags:
+    - pd-eks-deploy
+  image: docker.corp.pingidentity.com:5000/platform-pipeline/k8s-deploy-tools:stable
+  script:
+    - ./ci-scripts/test/unit/run-unit-tests.sh pingaccess
+
+ci-script-unit-tests:
+  stage: unit-test
+  tags:
+    - pd-eks-deploy
+  image: docker.corp.pingidentity.com:5000/platform-pipeline/k8s-deploy-tools:stable
+  script:
+    - ./ci-scripts/test/unit/run-unit-tests.sh ci-script-tests
+
+## Integration Test stage ##
+pd-integration-tests:
+  stage: integration-test
+  tags:
+  - pd-eks-deploy
+  image: docker.corp.pingidentity.com:5000/platform-pipeline/k8s-deploy-tools:stable
+  script:
+  - ./ci-scripts/test/integration/run-integration-tests.sh pingdirectory
+
+da-integration-tests:
+  stage: integration-test
+  tags:
+    - pd-eks-deploy
+  image: docker.corp.pingidentity.com:5000/platform-pipeline/k8s-deploy-tools:stable
+  script:
+    - ./ci-scripts/test/integration/run-integration-tests.sh pingdelegator
+
+pf-integration-tests:
+  stage: integration-test
+  tags:
+  - pd-eks-deploy
+  image: docker.corp.pingidentity.com:5000/platform-pipeline/k8s-deploy-tools:stable
+  script:
+  - ./ci-scripts/test/integration/run-integration-tests.sh pingfederate
+
+pa-integration-tests:
+  stage: integration-test
+  tags:
+    - pd-eks-deploy
+  image: docker.corp.pingidentity.com:5000/platform-pipeline/k8s-deploy-tools:stable
+  script:
+    - ./ci-scripts/test/integration/run-integration-tests.sh pingaccess
+
+pa-was-integration-tests:
+  stage: integration-test
+  tags:
+    - pd-eks-deploy
+  image: docker.corp.pingidentity.com:5000/platform-pipeline/k8s-deploy-tools:stable
+  script:
+    - ./ci-scripts/test/integration/run-integration-tests.sh pingaccess-was
+
+pc-services-integration-tests:
+  stage: integration-test
+  tags:
+    - pd-eks-deploy
+  image: docker.corp.pingidentity.com:5000/platform-pipeline/k8s-deploy-tools:stable
+  script:
+    - ./ci-scripts/test/integration/run-integration-tests.sh pingcloud-services
+
+common-integration-tests:
+  stage: integration-test
+  tags:
+    - pd-eks-deploy
+  image: docker.corp.pingidentity.com:5000/platform-pipeline/k8s-deploy-tools:stable
+  script:
+    - ./ci-scripts/test/integration/run-integration-tests.sh common
+
+monitoring-integration-tests:
+  stage: integration-test
+  tags:
+    - pd-eks-deploy
+  image: docker.corp.pingidentity.com:5000/platform-pipeline/k8s-deploy-tools:stable
+  script:
+    - ./ci-scripts/test/integration/run-integration-tests.sh monitoring
+
+## Chaos testing stage ##
+chaos-tests:
+  stage: chaos
+  tags:
+  - pd-eks-deploy
+  image: docker.corp.pingidentity.com:5000/platform-pipeline/k8s-deploy-tools:stable
+  script:
+  - ./ci-scripts/test/integration/run-integration-tests.sh chaos
+
+## Cleanup stage ##
+cleanup:
+  stage: cleanup
+  tags:
+  - pd-eks-deploy
+  image: docker.corp.pingidentity.com:5000/platform-pipeline/k8s-deploy-tools:stable
+  script:
+  - ./ci-scripts/cleanup/teardown.sh
