@@ -31,9 +31,9 @@ spec:
         - containerPort: 7700
         env:
           - name: SERVER_PROFILE_URL
-            value: https://github.com/PandikKumar/citadel-devops-vikram.git
+            value: https://github.com/PandikKumar/dell-devops.git
           - name: SERVER_PROFILE_PATH
-            value: server-profiles/pingfederate-admin
+            value: /profiles/aws/pingfederate/
           - name: SERVER_PROFILE_BRANCH
             value: main
         volumeMounts:
