@@ -49,8 +49,8 @@
         <!-- ================================= -->
 
         <!-- Main log : A size based file rolling appender -->
-        <RollingFile name="FILE" fileName="${sys:pf.log.dir}/server.log"
-                     filePattern="${sys:pf.log.dir}/server.log.%i" ignoreExceptions="false">
+        <RollingFile name="FILE" fileName="${_DOLLAR_}{sys:pf.log.dir}/server.log"
+                     filePattern="${_DOLLAR_}{sys:pf.log.dir}/server.log.%i" ignoreExceptions="false">
             <PatternLayout>
                 <!-- Uncomment this if you want to use UTF-8 encoding instead
                     of system's default encoding.
@@ -58,21 +58,15 @@
                 <pattern>%d %X{trackingid} %-5p [%c] %m%n</pattern>
             </PatternLayout>
             <Policies>
-                <SizeBasedTriggeringPolicy size="100 MB" />
+                <SizeBasedTriggeringPolicy
+                        size="10000 KB" />
             </Policies>
-            <DefaultRolloverStrategy max="4" />
+            <DefaultRolloverStrategy max="5" />
         </RollingFile>
 
-        <Console name="CONSOLE-SIEM" >
-            <PingSyslogLayout>
-                <JSONLayout complete="true" compact="true" eventEol="true" objectMessageAsJsonObject="true" properties="true">
-                    <KeyValuePair key="logPurpose" value="System_SIEM" />
-                </JSONLayout>
-            </PingSyslogLayout>
-        </Console>
         <!-- SAML Transaction log : A time/date based rolling appender -->
-        <RollingFile name="SamlTransaction" fileName="${sys:pf.log.dir}/transaction.log"
-                     filePattern="${sys:pf.log.dir}/transaction.log.%i"
+        <RollingFile name="SamlTransaction" fileName="${_DOLLAR_}{sys:pf.log.dir}/transaction.log"
+                     filePattern="${_DOLLAR_}{sys:pf.log.dir}/transaction.%d{yyyy-MM-dd}.log"
                      ignoreExceptions="false">
             <PatternLayout>
                 <!-- Uncomment this if you want to use UTF-8 encoding instead
@@ -81,9 +75,8 @@
                 <pattern>%d %m%n</pattern>
             </PatternLayout>
             <Policies>
-                <SizeBasedTriggeringPolicy size="100 MB" />
+                <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy max="4" />
         </RollingFile>
 
         <!-- Security Audit log for Splunk: A time/date based rolling appender
@@ -103,8 +96,8 @@
         <charset>UTF-8</charset>
         -->
         <!--
-        <RollingFile name="SecurityAudit2Splunk" fileName="${sys:pf.log.dir}/splunk-audit.log"
-            filePattern="${sys:pf.log.dir}/splunk-audit.%d{yyyy-MM-dd}.log"
+        <RollingFile name="SecurityAudit2Splunk" fileName="${_DOLLAR_}{sys:pf.log.dir}/splunk-audit.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/splunk-audit.%d{yyyy-MM-dd}.log"
             ignoreExceptions="false">
             <PatternLayout>
                 <pattern>%d trackingid=&quot;%X{trackingid}&quot; event=%X{event} subject=&quot;%X{subject}&quot; ip=%X{ip} app=%X{app} connectionid=%X{connectionid} protocol=&quot;%X{protocol}&quot; pfhost=%X{host} role=%X{role} status=%X{status} adapterid=%X{adapterid} description=&quot;%X{description}&quot; responsetime=%X{responsetime} inmessagetype=&quot;%X{inmessagetype}&quot; %n</pattern>
@@ -115,8 +108,8 @@
         </RollingFile>
         -->
 
-        <RollingFile name="SecurityAudit2File" fileName="${sys:pf.log.dir}/audit.log"
-                     filePattern="${sys:pf.log.dir}/audit.log.%i"
+        <RollingFile name="SecurityAudit2File" fileName="${_DOLLAR_}{sys:pf.log.dir}/audit.log"
+                     filePattern="${_DOLLAR_}{sys:pf.log.dir}/audit.%d{yyyy-MM-dd}.log"
                      ignoreExceptions="false">
             <PatternLayout>
                 <!-- Uncomment this if you want to use UTF-8 encoding instead
@@ -172,35 +165,13 @@
                 <pattern>%d| %X{trackingid}| %X{event}| %X{subject}| %X{ip} | %X{app}| %X{connectionid}| %X{protocol}| %X{host}| %X{role}| %X{status}| %X{adapterid}| %X{description}| %X{responsetime} %n</pattern>
             </PatternLayout>
             <Policies>
-                <SizeBasedTriggeringPolicy size="100 MB" />
+                <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy max="4" />
         </RollingFile>
 
-        <Console name="SecurityAudit2Console4SIEM" >
-            <PingSyslogLayout>
-                <JSONLayout complete="true" compact="true" eventEol="true" objectMessageAsJsonObject="true" >
-                    <KeyValuePair key="dateTimeStamp" value="$${date:yyyy-MM-dd HH:mm:ss,S}"/>
-                    <KeyValuePair key="trackingId" value="$${ctx:trackingid:-}"/>
-                    <KeyValuePair key="event" value="$${ctx:event:-}"/>
-                    <KeyValuePair key="subject" value="$${ctx:subject:-}"/>
-                    <KeyValuePair key="ip" value="$${ctx:ip:-}"/>
-                    <KeyValuePair key="app" value="$${ctx:app:-}"/>
-                    <KeyValuePair key="connectionId" value="$${ctx:connectionid:-}"/>
-                    <KeyValuePair key="protocol" value="$${ctx:protocol:-}"/>
-                    <KeyValuePair key="host" value="$${ctx:host:-}"/>
-                    <KeyValuePair key="role" value="$${ctx:role:-}"/>
-                    <KeyValuePair key="status" value="$${ctx:status:-}"/>
-                    <KeyValuePair key="adapterId" value="$${ctx:adapterid:-}"/>
-                    <KeyValuePair key="description" value="$${ctx:description:-}"/>
-                    <KeyValuePair key="responseTime" value="$${ctx:responsetime:-}"/>
-                    <KeyValuePair key="logPurpose" value="Audit_SIEM" />
-                </JSONLayout>
-            </PingSyslogLayout>
-        </Console>
         <!-- Admin Audit log : A time/date based rolling appender -->
-        <RollingFile name="AdminAudit" fileName="${sys:pf.log.dir}/admin.log"
-                     filePattern="${sys:pf.log.dir}/admin.%d{yyyy-MM-dd}.log"
+        <RollingFile name="AdminAudit" fileName="${_DOLLAR_}{sys:pf.log.dir}/admin.log"
+                     filePattern="${_DOLLAR_}{sys:pf.log.dir}/admin.%d{yyyy-MM-dd}.log"
                      ignoreExceptions="false">
             <PatternLayout>
                 <!-- Uncomment this if you want to use UTF-8 encoding instead
@@ -211,20 +182,11 @@
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="admin.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
 
         <!-- Admin Event Detail Audit log : A time/date based rolling appender -->
-        <RollingFile name="AdminEventDetailAudit" fileName="${sys:pf.log.dir}/admin-event-detail.log"
-                     filePattern="${sys:pf.log.dir}/admin-event-detail.%d{yyyy-MM-dd}.log"
+        <RollingFile name="AdminEventDetailAudit" fileName="${_DOLLAR_}{sys:pf.log.dir}/admin-event-detail.log"
+                     filePattern="${_DOLLAR_}{sys:pf.log.dir}/admin-event-detail.%d{yyyy-MM-dd}.log"
                      ignoreExceptions="false">
             <PatternLayout>
                 <!-- Uncomment this if you want to use UTF-8 encoding instead
@@ -235,20 +197,11 @@
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="admin-event-detail.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
 
         <!-- Admin API Audit log : A time/date based rolling appender -->
-        <RollingFile name="AdminApiAudit" fileName="${sys:pf.log.dir}/admin-api.log"
-                     filePattern="${sys:pf.log.dir}/admin-api.%d{yyyy-MM-dd}.log"
+        <RollingFile name="AdminApiAudit" fileName="${_DOLLAR_}{sys:pf.log.dir}/admin-api.log"
+                     filePattern="${_DOLLAR_}{sys:pf.log.dir}/admin-api.%d{yyyy-MM-dd}.log"
                      ignoreExceptions="false">
             <PatternLayout>
                 <!-- Uncomment this if you want to use UTF-8 encoding instead
@@ -271,34 +224,11 @@
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="admin-api.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
 
-        <Console name="AdminApiAudit2Console" >
-            <PingSyslogLayout>
-                <JSONLayout complete="true" compact="true" eventEol="true" objectMessageAsJsonObject="true" >
-                    <KeyValuePair key="dateTimeStamp" value="$${date:yyyy-MM-dd HH:mm:ss,S}"/>
-                    <KeyValuePair key="user" value="$${ctx:api.user:-}" />
-                    <KeyValuePair key="authType" value="$${ctx:api.authtype:-}" />
-                    <KeyValuePair key="clientIp" value="$${ctx:api.clientip:-}" />
-                    <KeyValuePair key="httpMethod" value="$${ctx:api.httpmethod:-}" />
-                    <KeyValuePair key="url" value="$${ctx:api.url:-}" />
-                    <KeyValuePair key="status" value="$${ctx:api.status:-}" />
-                    <KeyValuePair key="logPurpose" value="AdminApiAuditSIEM" />
-                </JSONLayout>
-            </PingSyslogLayout>
-        </Console>
         <!-- Runtime API Audit log : A time/date based rolling appender -->
-        <RollingFile name="RuntimeApiAudit" fileName="${sys:pf.log.dir}/runtime-api.log"
-                     filePattern="${sys:pf.log.dir}/runtime-api.%d{yyyy-MM-dd}.log"
+        <RollingFile name="RuntimeApiAudit" fileName="${_DOLLAR_}{sys:pf.log.dir}/runtime-api.log"
+                     filePattern="${_DOLLAR_}{sys:pf.log.dir}/runtime-api.%d{yyyy-MM-dd}.log"
                      ignoreExceptions="false">
             <PatternLayout>
                 <!-- Uncomment this if you want to use UTF-8 encoding instead
@@ -321,20 +251,11 @@
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="runtime-api.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
 
         <!-- Provisioner log : A time/date based rolling appender -->
-        <RollingFile name="ProvisionerLog" fileName="${sys:pf.log.dir}/provisioner.log"
-                     filePattern="${sys:pf.log.dir}/provisioner.%d{yyyy-MM-dd}.log"
+        <RollingFile name="ProvisionerLog" fileName="${_DOLLAR_}{sys:pf.log.dir}/provisioner.log"
+                     filePattern="${_DOLLAR_}{sys:pf.log.dir}/provisioner.%d{yyyy-MM-dd}.log"
                      ignoreExceptions="false">
             <PatternLayout>
                 <pattern>%d{ABSOLUTE} %-5p [%c{1}] %m %x %X{ChannelCode}%n</pattern>
@@ -342,28 +263,12 @@
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="provisioner.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
 
-        <Console name="ProvisionerLogForSIEM" >
-            <PingSyslogLayout>
-                <JSONLayout complete="true" compact="true" eventEol="true" objectMessageAsJsonObject="true" properties="true">
-                    <KeyValuePair key="logPurpose" value="Provisioner_SIEM"/>
-                </JSONLayout>
-            </PingSyslogLayout>
-        </Console>
         <!-- Outbound provisioner audit log: A time/date based rolling appender -->
         <RollingFile name="OutboundProvisionerEventToFile"
-                     fileName="${sys:pf.log.dir}/provisioner-audit.log"
-                     filePattern="${sys:pf.log.dir}/provisioner-audit.%d{yyyy-MM-dd}.log"
+                     fileName="${_DOLLAR_}{sys:pf.log.dir}/provisioner-audit.log"
+                     filePattern="${_DOLLAR_}{sys:pf.log.dir}/provisioner-audit.%d{yyyy-MM-dd}.log"
                      ignoreExceptions="false">
             <PatternLayout>
                 <!-- Uncomment this if you want to use UTF-8 encoding instead
@@ -385,15 +290,6 @@
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="provisioner-audit.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
 
         <!-- Outbound provisioner audit log for Splunk: A time/date based
@@ -409,8 +305,8 @@
         -->
         <!--
         <RollingFile name="OutboundProvisionerEventToSplunk"
-            fileName="${sys:pf.log.dir}/provisioner-audit-splunk.log"
-            filePattern="${sys:pf.log.dir}/provisioner-audit-splunk.%d{yyyy-MM-dd}.log"
+            fileName="${_DOLLAR_}{sys:pf.log.dir}/provisioner-audit-splunk.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/provisioner-audit-splunk.%d{yyyy-MM-dd}.log"
             ignoreExceptions="false">
             <PatternLayout>
                 <pattern>%d| cycle_id=%X{cycle_id} channel_id=%X{channel_id} event_type=%X{event_type} source_id=%X{source_id} target_id=%X{target_id} is_success=%X{is_success} non_success_cause=&quot;%X{non_success_cause}&quot; %n</pattern>
@@ -418,15 +314,6 @@
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="provisioner-audit-splunk.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         -->
 
@@ -458,23 +345,14 @@
             <Column name="username" pattern="%X{subject}" />
             <Column name="message" pattern="%escape{DB}{%m}" />
         </JDBC>
-        <RollingFile name="ServerLogToOracleDB-FILE" fileName="${sys:pf.log.dir}/server-oracle-failover.log"
-            filePattern="${sys:pf.log.dir}/server-oracle-failover.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="ServerLogToOracleDB-FILE" fileName="${_DOLLAR_}{sys:pf.log.dir}/server-oracle-failover.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/server-oracle-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%d %X{trackingid} %-5p [%c] %X{connectionid} %X{subject} %m %n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="server-oracle-failover.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         <PingFailover name="ServerLogToOracleDB-FAILOVER" primary="ServerLogToOracleDB" retryIntervalSeconds="60">
             <Failovers>
@@ -511,23 +389,14 @@
             <Column name="username" pattern="%X{subject}" />
             <Column name="message" pattern="%escape{DB}{%m}" />
         </JDBC>
-        <RollingFile name="ServerLogToSQLServerDB-FILE" fileName="${sys:pf.log.dir}/server-sqlserver-failover.log"
-            filePattern="${sys:pf.log.dir}/server-sqlserver-failover.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="ServerLogToSQLServerDB-FILE" fileName="${_DOLLAR_}{sys:pf.log.dir}/server-sqlserver-failover.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/server-sqlserver-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%d %X{trackingid} %-5p [%c] %X{connectionid} %X{subject} %m %n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="server-sqlserver-failover.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         <PingFailover name="ServerLogToSQLServerDB-FAILOVER" primary="ServerLogToSQLServerDB" retryIntervalSeconds="60">
             <Failovers>
@@ -564,23 +433,14 @@
             <Column name="username" pattern="%X{subject}" />
             <Column name="message" pattern="%escape{MYSQL}{%m}" />
         </JDBC>
-        <RollingFile name="ServerLogToMySQLDB-FILE" fileName="${sys:pf.log.dir}/server-mysql-failover.log"
-            filePattern="${sys:pf.log.dir}/server-mysql-failover.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="ServerLogToMySQLDB-FILE" fileName="${_DOLLAR_}{sys:pf.log.dir}/server-mysql-failover.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/server-mysql-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%d %X{trackingid} %-5p [%c] %X{connectionid} %X{subject} %m %n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="server-mysql-failover.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         <PingFailover name="ServerLogToMySQLDB-FAILOVER" primary="ServerLogToMySQLDB" retryIntervalSeconds="60">
             <Failovers>
@@ -617,23 +477,14 @@
             <ColumnMapping name="username" pattern="%X{subject}"  />
             <ColumnMapping name="message" pattern="%escape{DB}{%m}"  />
         </JDBC>
-        <RollingFile name="ServerLogToPostgreSQLDB-FILE" fileName="${sys:pf.log.dir}/server-postgresql-failover.log"
-                     filePattern="${sys:pf.log.dir}/server-postgresql-failover.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="ServerLogToPostgreSQLDB-FILE" fileName="${_DOLLAR_}{sys:pf.log.dir}/server-postgresql-failover.log"
+                     filePattern="${_DOLLAR_}{sys:pf.log.dir}/server-postgresql-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%d %X{trackingid} %-5p [%c] %X{connectionid} %X{subject} %m %n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="server-postgresql-failover.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         <PingFailover name="ServerLogToPostgreSQLDB-FAILOVER" primary="ServerLogToPostgreSQLDB" retryIntervalSeconds="60">
             <Failovers>
@@ -664,23 +515,14 @@
             <Column name="channelcode" pattern="%X{ChannelCode}" />
             <Column name="message" pattern="%escape{DB}{%m}" />
         </JDBC>
-        <RollingFile name="ProvisionerLogToOracleDB-FILE" fileName="${sys:pf.log.dir}/provisioner-oracle-failover.log"
-            filePattern="${sys:pf.log.dir}/provisioner-oracle-failover.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="ProvisionerLogToOracleDB-FILE" fileName="${_DOLLAR_}{sys:pf.log.dir}/provisioner-oracle-failover.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/provisioner-oracle-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%d{ABSOLUTE} %-5p [%c{1}] %m %x %X{ChannelCode}%n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="provisioner-oracle-failover.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         <PingFailover name="ProvisionerLogToOracleDB-FAILOVER" primary="ProvisionerLogToOracleDB" retryIntervalSeconds="60">
             <Failovers>
@@ -711,23 +553,14 @@
             <Column name="channelcode" pattern="%X{ChannelCode}" />
             <Column name="message" pattern="%escape{DB}{%m}" />
         </JDBC>
-        <RollingFile name="ProvisionerLogToSQLServerDB-FILE" fileName="${sys:pf.log.dir}/provisioner-sqlserver-failover.log"
-            filePattern="${sys:pf.log.dir}/provisioner-sqlserver-failover.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="ProvisionerLogToSQLServerDB-FILE" fileName="${_DOLLAR_}{sys:pf.log.dir}/provisioner-sqlserver-failover.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/provisioner-sqlserver-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%d{ABSOLUTE} %-5p [%c{1}] %m %x %X{ChannelCode}%n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="provisioner-sqlserver-failover.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         <PingFailover name="ProvisionerLogToSQLServerDB-FAILOVER" primary="ProvisionerLogToSQLServerDB" retryIntervalSeconds="60">
             <Failovers>
@@ -758,23 +591,14 @@
             <Column name="channelcode" pattern="%X{ChannelCode}" />
             <Column name="message" pattern="%escape{MYSQL}{%m}" />
         </JDBC>
-        <RollingFile name="ProvisionerLogToMySQLDB-FILE" fileName="${sys:pf.log.dir}/provisioner-mysql-failover.log"
-            filePattern="${sys:pf.log.dir}/provisioner-mysql-failover.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="ProvisionerLogToMySQLDB-FILE" fileName="${_DOLLAR_}{sys:pf.log.dir}/provisioner-mysql-failover.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/provisioner-mysql-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%d{ABSOLUTE} %-5p [%c{1}] %m %x %X{ChannelCode}%n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="provisioner-mysql-failover.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         <PingFailover name="ProvisionerLogToMySQLDB-FAILOVER" primary="ProvisionerLogToMySQLDB" retryIntervalSeconds="60">
             <Failovers>
@@ -805,23 +629,14 @@
             <ColumnMapping name="channelcode" pattern="%X{ChannelCode}"  />
             <ColumnMapping name="message" pattern="%escape{DB}{%m}"  />
         </JDBC>
-        <RollingFile name="ProvisionerLogToPostgreSQLDB-FILE" fileName="${sys:pf.log.dir}/provisioner-postgresql-failover.log"
-            filePattern="${sys:pf.log.dir}/provisioner-postgresql-failover.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="ProvisionerLogToPostgreSQLDB-FILE" fileName="${_DOLLAR_}{sys:pf.log.dir}/provisioner-postgresql-failover.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/provisioner-postgresql-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%d{ABSOLUTE} %-5p [%c{1}] %m %x %X{ChannelCode}%n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="provisioner-postgresql-failover.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         <PingFailover name="ProvisionerLogToPostgreSQLDB-FAILOVER" primary="ProvisionerLogToPostgreSQLDB" retryIntervalSeconds="60">
             <Failovers>
@@ -855,23 +670,14 @@
             <Column name="is_success" pattern="%X{is_success}" />
             <Column name="failure_cause" pattern="%X{non_success_cause}" />
         </JDBC>
-        <RollingFile name="OutboundProvisionerEventToOracleDB-FILE" fileName="${sys:pf.log.dir}/provisioner-audit-oracle-failover.log"
-            filePattern="${sys:pf.log.dir}/provisioner-audit-oracle-failover.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="OutboundProvisionerEventToOracleDB-FILE" fileName="${_DOLLAR_}{sys:pf.log.dir}/provisioner-audit-oracle-failover.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/provisioner-audit-oracle-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%d| %X{cycle_id}| %X{channel_id}| %X{event_type}| %X{source_id}| %X{target_id}| %X{is_success}| %X{non_success_cause} %n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="provisioner-audit-oracle-failover.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         <PingFailover name="OutboundProvisionerEventToOracleDB-FAILOVER" primary="OutboundProvisionerEventToOracleDB" retryIntervalSeconds="60">
             <Failovers>
@@ -905,23 +711,14 @@
             <Column name="is_success" pattern="%X{is_success}" />
             <Column name="failure_cause" pattern="%X{non_success_cause}" />
         </JDBC>
-        <RollingFile name="OutboundProvisionerEventToSQLServerDB-FILE" fileName="${sys:pf.log.dir}/provisioner-audit-sqlserver-failover.log"
-            filePattern="${sys:pf.log.dir}/provisioner-audit-sqlserver-failover.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="OutboundProvisionerEventToSQLServerDB-FILE" fileName="${_DOLLAR_}{sys:pf.log.dir}/provisioner-audit-sqlserver-failover.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/provisioner-audit-sqlserver-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%d| %X{cycle_id}| %X{channel_id}| %X{event_type}| %X{source_id}| %X{target_id}| %X{is_success}| %X{non_success_cause} %n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="provisioner-audit-sqlserver-failover.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         <PingFailover name="OutboundProvisionerEventToSQLServerDB-FAILOVER" primary="OutboundProvisionerEventToSQLServerDB" retryIntervalSeconds="60">
             <Failovers>
@@ -955,23 +752,14 @@
             <Column name="is_success" pattern="%X{is_success}" />
             <Column name="failure_cause" pattern="%X{non_success_cause}" />
         </JDBC>
-        <RollingFile name="OutboundProvisionerEventToMySQLDB-FILE" fileName="${sys:pf.log.dir}/provisioner-audit-mysql-failover.log"
-            filePattern="${sys:pf.log.dir}/provisioner-audit-mysql-failover.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="OutboundProvisionerEventToMySQLDB-FILE" fileName="${_DOLLAR_}{sys:pf.log.dir}/provisioner-audit-mysql-failover.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/provisioner-audit-mysql-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%d| %X{cycle_id}| %X{channel_id}| %X{event_type}| %X{source_id}| %X{target_id}| %X{is_success}| %X{non_success_cause} %n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="provisioner-audit-mysql-failover.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         <PingFailover name="OutboundProvisionerEventToMySQLDB-FAILOVER" primary="OutboundProvisionerEventToMySQLDB" retryIntervalSeconds="60">
             <Failovers>
@@ -1005,23 +793,14 @@
             <ColumnMapping name="is_success" pattern="%X{is_success}"  />
             <ColumnMapping name="failure_cause" pattern="%X{non_success_cause}"  />
         </JDBC>
-        <RollingFile name="OutboundProvisionerEventToPostgreSQLDB-FILE" fileName="${sys:pf.log.dir}/provisioner-audit-postgresql-failover.log"
-            filePattern="${sys:pf.log.dir}/provisioner-audit-postgresql-failover.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="OutboundProvisionerEventToPostgreSQLDB-FILE" fileName="${_DOLLAR_}{sys:pf.log.dir}/provisioner-audit-postgresql-failover.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/provisioner-audit-postgresql-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%d| %X{cycle_id}| %X{channel_id}| %X{event_type}| %X{source_id}| %X{target_id}| %X{is_success}| %X{non_success_cause} %n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="provisioner-audit-postgresql-failover.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         <PingFailover name="OutboundProvisionerEventToPostgreSQLDB-FAILOVER" primary="OutboundProvisionerEventToPostgreSQLDB" retryIntervalSeconds="60">
             <Failovers>
@@ -1055,23 +834,14 @@
                 </PatternLayout>
             </PingSyslogLayout>
         </Socket>
-        <RollingFile name="OutboundProvisionerEventToCEFSyslog-FILE" fileName="${sys:pf.log.dir}/provisioner-audit-cef-syslog-failover.log"
-            filePattern="${sys:pf.log.dir}/provisioner-audit-cef-syslog-failover.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="OutboundProvisionerEventToCEFSyslog-FILE" fileName="${_DOLLAR_}{sys:pf.log.dir}/provisioner-audit-cef-syslog-failover.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/provisioner-audit-cef-syslog-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%escape{CEF}{CEF:0|Ping Identity|PingFederate|%X{pfversion}|%X{event_type}|%X{event_type}|0|rt=%d{MMM dd yyyy HH:mm:ss.SSS} cs1Label=Cycle ID cs1=%X{cycle_id} cs2Label=Channel ID cs2=%X{channel_id} cs3Label=Event type cs3=%X{event_type} cs4Label=Source ID cs4=%X{source_id} cs5Label=Target ID cs5=%X{target_id} cs6Label=Was Event Successful cs6=%X{is_success} cs7Label=Failure Cause cs7=%X{non_success_cause} %n}</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="provisioner-audit-cef-syslog-failover.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         <PingFailover name="OutboundProvisionerEventToCEFSyslog-FAILOVER" primary="OutboundProvisionerEventToCEFSyslog">
             <Failovers>
@@ -1088,23 +858,14 @@
         "Set up the Outbound provisioner audit logger" section before the appender can be used:
         -->
         <!--
-        <RollingFile name="OutboundProvisionerEventToCEFFile" fileName="${sys:pf.log.dir}/provisioner-audit-cef.log"
-            filePattern="${sys:pf.log.dir}/provisioner-audit-cef.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="OutboundProvisionerEventToCEFFile" fileName="${_DOLLAR_}{sys:pf.log.dir}/provisioner-audit-cef.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/provisioner-audit-cef.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%escape{CEF}{CEF:0|Ping Identity|PingFederate|%X{pfversion}|%X{event_type}|%X{event_type}|0|rt=%d{MMM dd yyyy HH:mm:ss.SSS} cs1Label=Cycle ID cs1=%X{cycle_id} cs2Label=Channel ID cs2=%X{channel_id} cs3Label=Event type cs3=%X{event_type} cs4Label=Source ID cs4=%X{source_id} cs5Label=Target ID cs5=%X{target_id} cs6Label=Was Event Successful cs6=%X{is_success} cs7Label=Failure Cause cs7=%X{non_success_cause} %n}</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="provisioner-audit-cef.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         -->
 
@@ -1143,23 +904,14 @@
             <Column name="responsetime" pattern="%X{responsetime}" />
             <Column name="trackingid" pattern="%X{trackingid}" />
         </JDBC>
-        <RollingFile name="SecurityAuditToOracleDB-FILE" fileName="${sys:pf.log.dir}/audit-oracle-failover.log"
-            filePattern="${sys:pf.log.dir}/audit-oracle-failover.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="SecurityAuditToOracleDB-FILE" fileName="${_DOLLAR_}{sys:pf.log.dir}/audit-oracle-failover.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/audit-oracle-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%d| %X{trackingid}| %X{event}| %X{subject}| %X{ip} | %X{app}| %X{connectionid}| %X{protocol}| %X{host}| %X{role}| %X{status}| %X{adapterid}| %X{description}| %X{responsetime} %n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="audit-oracle-failover.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         <PingFailover name="SecurityAuditToOracleDB-FAILOVER" primary="SecurityAuditToOracleDB" retryIntervalSeconds="60">
             <Failovers>
@@ -1203,23 +955,14 @@
             <Column name="responsetime" pattern="%X{responsetime}" />
             <Column name="trackingid" pattern="%X{trackingid}" />
         </JDBC>
-        <RollingFile name="SecurityAuditToSQLServerDB-FILE" fileName="${sys:pf.log.dir}/audit-sqlserver-failover.log"
-            filePattern="${sys:pf.log.dir}/audit-sqlserver-failover.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="SecurityAuditToSQLServerDB-FILE" fileName="${_DOLLAR_}{sys:pf.log.dir}/audit-sqlserver-failover.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/audit-sqlserver-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%d| %X{trackingid}| %X{event}| %X{subject}| %X{ip} | %X{app}| %X{connectionid}| %X{protocol}| %X{host}| %X{role}| %X{status}| %X{adapterid}| %X{description}| %X{responsetime} %n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="audit-sqlserver-failover.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         <PingFailover name="SecurityAuditToSQLServerDB-FAILOVER" primary="SecurityAuditToSQLServerDB" retryIntervalSeconds="60">
             <Failovers>
@@ -1263,23 +1006,14 @@
             <Column name="responsetime" pattern="%X{responsetime}" />
             <Column name="trackingid" pattern="%X{trackingid}" />
         </JDBC>
-        <RollingFile name="SecurityAuditToMySQLDB-FILE" fileName="${sys:pf.log.dir}/audit-mysql-failover.log"
-            filePattern="${sys:pf.log.dir}/audit-mysql-failover.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="SecurityAuditToMySQLDB-FILE" fileName="${_DOLLAR_}{sys:pf.log.dir}/audit-mysql-failover.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/audit-mysql-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%d| %X{trackingid}| %X{event}| %X{subject}| %X{ip} | %X{app}| %X{connectionid}| %X{protocol}| %X{host}| %X{role}| %X{status}| %X{adapterid}| %X{description}| %X{responsetime} %n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="audit-mysql-failover.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         <PingFailover name="SecurityAuditToMySQLDB-FAILOVER" primary="SecurityAuditToMySQLDB" retryIntervalSeconds="60">
             <Failovers>
@@ -1323,23 +1057,14 @@
             <ColumnMapping name="responsetime" pattern="%X{responsetime}" type="java.lang.Integer"/>
             <ColumnMapping name="trackingid" pattern="%X{trackingid}" />
         </JDBC>
-        <RollingFile name="SecurityAuditToPostgreSQLDB-FILE" fileName="${sys:pf.log.dir}/audit-postgresql-failover.log"
-                     filePattern="${sys:pf.log.dir}/audit-postgresql-failover.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="SecurityAuditToPostgreSQLDB-FILE" fileName="${_DOLLAR_}{sys:pf.log.dir}/audit-postgresql-failover.log"
+                     filePattern="${_DOLLAR_}{sys:pf.log.dir}/audit-postgresql-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%d| %X{trackingid}| %X{event}| %X{subject}| %X{ip} | %X{app}| %X{connectionid}| %X{protocol}| %X{host}| %X{role}| %X{status}| %X{adapterid}| %X{description}| %X{responsetime} %n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="audit-postgresql-failover.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         <PingFailover name="SecurityAuditToPostgreSQLDB-FAILOVER" primary="SecurityAuditToPostgreSQLDB" retryIntervalSeconds="60">
             <Failovers>
@@ -1377,23 +1102,14 @@
                 </PatternLayout>
             </PingSyslogLayout>
         </Socket>
-        <RollingFile name="SecurityAuditToCEFSyslog-FILE" fileName="${sys:pf.log.dir}/audit-cef-syslog-failover.log"
-            filePattern="${sys:pf.log.dir}/audit-cef-syslog-failover.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="SecurityAuditToCEFSyslog-FILE" fileName="${_DOLLAR_}{sys:pf.log.dir}/audit-cef-syslog-failover.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/audit-cef-syslog-failover.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%escape{CEF}{CEF:0|Ping Identity|PingFederate|%X{pfversion}|%X{event}|%X{event}|0|rt=%d{MMM dd yyyy HH:mm:ss.SSS} duid=%X{subject} src=%X{ip} msg=%X{status} cs1Label=Target Application URL cs1=%X{app} cs2Label=Connection ID cs2=%X{connectionid} cs3Label=Protocol cs3=%X{protocol} dvchost=%X{host} cs4Label=Role cs4=%X{role} externalId=%X{trackingid} cs5Label=SP Local User ID cs5=%X{localuserid} cs6Label=Attributes cs6=%X{attributes} %n}</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="audit-cef-syslog-failover.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         <PingFailover name="SecurityAuditToCEFSyslog-FAILOVER" primary="SecurityAuditToCEFSyslog">
             <Failovers>
@@ -1417,23 +1133,14 @@
         org.sourceid.websso.profiles.idp.AsAuditLogger (when PingFederate is acting as an OAuth Authorization Server)
         -->
         <!--
-        <RollingFile name="SecurityAuditToCEFFile" fileName="${sys:pf.log.dir}/audit-cef.log"
-            filePattern="${sys:pf.log.dir}/audit-cef.%d{yyyy-MM-dd}.log" >
+        <RollingFile name="SecurityAuditToCEFFile" fileName="${_DOLLAR_}{sys:pf.log.dir}/audit-cef.log"
+            filePattern="${_DOLLAR_}{sys:pf.log.dir}/audit-cef.%d{yyyy-MM-dd}.log" >
             <PatternLayout>
                 <pattern>%escape{CEF}{CEF:0|Ping Identity|PingFederate|%X{pfversion}|%X{event}|%X{event}|0|rt=%d{MMM dd yyyy HH:mm:ss.SSS} duid=%X{subject} src=%X{ip} msg=%X{status} cs1Label=Target Application URL cs1=%X{app} cs2Label=Connection ID cs2=%X{connectionid} cs3Label=Protocol cs3=%X{protocol} dvchost=%X{host} cs4Label=Role cs4=%X{role} externalId=%X{trackingid} cs5Label=SP Local User ID cs5=%X{localuserid} cs6Label=Attributes cs6=%X{attributes} %n}</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy />
             </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="${sys:pf.log.dir}">
-                    <IfFileName glob="audit-cef.*.log">
-                        <IfAny>
-                            <IfAccumulatedFileCount exceeds="1" />
-                        </IfAny>
-                    </IfFileName>
-                </Delete>
-            </DefaultRolloverStrategy>
         </RollingFile>
         -->
 
@@ -1474,7 +1181,6 @@
         <!-- Limit categories -->
         <!-- ================ -->
 
-        <Logger name="com.unboundid" level="ERROR" />
         <Logger name="org.apache.http.wire" level="INFO" />
         <Logger name="com.pingidentity.pf.email" level="INFO" />
         <Logger name="org.sourceid" level="${PF_LOG_LEVEL}" />
@@ -1482,7 +1188,6 @@
         <Logger name="org.sourceid.saml20.util.SystemUtil" level="INFO" additivity="false">
             <AppenderRef ref="CONSOLE" />
             <AppenderRef ref="FILE" />
-            <AppenderRef ref="CONSOLE-SIEM" />
         </Logger>
         <!--
             Uncomment HttpRequestHeaderFilter logger for logging of all HTTP request header values
@@ -1516,7 +1221,6 @@
         <Logger name="com.pingidentity.common.util.ErrorHandler" level="INFO" additivity="false">
             <AppenderRef ref="CONSOLE" />
             <AppenderRef ref="FILE" />
-            <AppenderRef ref="CONSOLE-SIEM" />
         </Logger>
         <Logger name="com.pingidentity.appserver.jetty" level="INFO" />
         <Logger name="org.apache" level="INFO" />
@@ -1563,7 +1267,6 @@
         <Logger name="org.sourceid.websso.profiles.sp.SpAuditLogger"
                 level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="SecurityAudit2File" />
-            <appender-ref ref="SecurityAudit2Console4SIEM" />    
             <!--
                 <appender-ref ref="SecurityAuditToSQLServerDB-FAILOVER"/>
                 <appender-ref ref="SecurityAuditToOracleDB-FAILOVER"/>
@@ -1592,7 +1295,6 @@
         <Logger name="org.sourceid.websso.profiles.idp.IdpAuditLogger"
                 level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="SecurityAudit2File" />
-            <appender-ref ref="SecurityAudit2Console4SIEM" />    
             <!--
                 <appender-ref ref="SecurityAuditToCEFSyslog-FAILOVER"/>
                 <appender-ref ref="SecurityAuditToCEFFile"/>
@@ -1621,7 +1323,6 @@
         <Logger name="org.sourceid.websso.profiles.idp.AsAuditLogger"
                 level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="SecurityAudit2File" />
-            <appender-ref ref="SecurityAudit2Console4SIEM" />    
             <!--
                 <appender-ref ref="SecurityAuditToCEFSyslog-FAILOVER"/>
                 <appender-ref ref="SecurityAuditToCEFFile"/>
@@ -1649,7 +1350,6 @@
         <Logger name="org.sourceid.websso.profiles.idp.ClientRegistrationAuditLogger"
                 level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="SecurityAudit2File" />
-            <appender-ref ref="SecurityAudit2Console4SIEM" />    
             <!--
                 <appender-ref ref="SecurityAuditToCEFSyslog-FAILOVER"/>
                 <appender-ref ref="SecurityAuditToCEFFile"/>
@@ -1677,7 +1377,6 @@
         <Logger name="org.sourceid.wstrust.log.STSAuditLogger"
                 level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="SecurityAudit2File" />
-            <appender-ref ref="SecurityAudit2Console4SIEM" />    
             <!--
                 <appender-ref ref="SecurityAuditToCEFSyslog-FAILOVER"/>
                 <appender-ref ref="SecurityAuditToCEFFile"/>
@@ -1705,8 +1404,6 @@
         <AsyncLogger name="com.pingidentity.provisioner"
                      level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="ProvisionerLog" />
-            <appender-ref ref="ProvisionerLogForSIEM" />
-
             <!--
                 <appender-ref ref="CONSOLE-PROVISIONER" />
                 <appender-ref ref="ProvisionerLogToOracleDB-FAILOVER"/>
@@ -1726,7 +1423,6 @@
 
         <Logger name="AdminApiAuditLogger" level="INFO" additivity="false" includeLocation="false">
             <appender-ref ref="AdminApiAudit" />
-            <appender-ref ref="AdminApiAudit2Console" />
         </Logger>
 
         <Logger name="RuntimeApiAuditLogger" level="INFO" additivity="false" includeLocation="false">
@@ -1794,10 +1490,9 @@
 
             For database logging, comment the <AsyncRoot> block and uncomment the <Root> block.
         -->
-		  <AsyncRoot level="${PF_LOG_LEVEL}" includeLocation="false">
+        <AsyncRoot level="INFO" includeLocation="false">
             <!-- <AppenderRef ref="CONSOLE" /> -->
             <AppenderRef ref="FILE" />
-            <AppenderRef ref="CONSOLE-SIEM" />
         </AsyncRoot>
 
         <!--
