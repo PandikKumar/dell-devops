@@ -22,4 +22,4 @@ else
   beluga_log "A pre-existing master key was found on disk - using it"
 fi
 
-obfuscatePassword
+#obfuscatePassword
